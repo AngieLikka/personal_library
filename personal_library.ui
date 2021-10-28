@@ -14,7 +14,7 @@
    <string>Персональная библиотека</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QTabWidget" name="parametr">
+   <widget class="QTabWidget" name="mW">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -466,7 +466,7 @@
      </palette>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -495,7 +495,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QTableWidget" name="tableWidget">
+        <widget class="QTableWidget" name="table_shelfes">
          <property name="palette">
           <palette>
            <active>
@@ -1150,7 +1150,7 @@
        </rect>
       </property>
      </widget>
-     <widget class="QTableWidget" name="tableWidget">
+     <widget class="QTableWidget" name="book_table">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -1213,7 +1213,7 @@
        <string>Добавить новую книгу</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QPushButton" name="find">
       <property name="geometry">
        <rect>
         <x>510</x>
@@ -1231,7 +1231,7 @@
        <string>Найти</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushButton_3">
+     <widget class="QPushButton" name="change">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -1277,7 +1277,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QTableWidget" name="tableWidget_2">
+        <widget class="QTableWidget" name="wishlist">
          <property name="palette">
           <palette>
            <active>
@@ -1330,7 +1330,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_2">
+        <widget class="QPushButton" name="on_shelf">
          <property name="font">
           <font>
            <pointsize>10</pointsize>
