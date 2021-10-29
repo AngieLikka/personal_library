@@ -47,6 +47,8 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         request_g = """CREATE TABLE IF NOT EXISTS genres(
             id    INTEGER PRIMARY KEY UNIQUE NOT NULL,
             title TEXT UNIQUE NOT NULL)"""
+        cur.execute(request_a)
+        cur.execute(request_g)
         cur.execute(request_bi)
         self.con.commit()
 
@@ -80,9 +82,12 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.shelf += 1
 
     def no_shelf(self):
-        self.table_shelfes.removeCellWidget(self.row_shelfes, 0)  # добавить message box
-        self.row_shelfes -= 1
-        self.shelf -= 1
+        valid = QMessageBox.question(self, 'Удаление', 'Действительно удалить последнюю полку?',
+                                     QMessageBox.Yes, QMessageBox.No)
+        if valid == QMessageBox.Yes:
+            self.table_shelfes.removeCellWidget(self.row_shelfes, 0)
+            self.row_shelfes -= 1
+            self.shelf -= 1
 
 
 class AddingBook(QWidget, Ui_add_form):  # класс формы добавления
@@ -116,7 +121,7 @@ class DeleteBook(QWidget, Ui_del_form):  # класс формы удалени�
         self.close()
 
 
-class ChangeInf(QWidget, Ui_change_form):
+class ChangeInf(QWidget, Ui_change_form):  # класс формы редактирования
     def __init__(self, parent=None):
         super(ChangeInf, self).__init__(parent)
         self.setupUi(self)
