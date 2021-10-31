@@ -54,6 +54,12 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         cur.execute(request_a)
         cur.execute(request_g)
         cur.execute(request_bi)
+        genres = ['детектив', 'фантастика', 'приключения', 'роман', 'научно-популярная литература',
+                  'юмор', 'фэнтези', 'учебная литература', 'поэзия']
+        id = 1
+        for i in range(len(genres)):
+            cur.execute('''INSERT INTO genres (id, title) VALUES (?, ?)''', [id, genres[i]])
+            id += 1
         self.con.commit()
 
     def find_books(self):
@@ -62,7 +68,7 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
 
     def add_item(self, name, author, year, genre, num_shelf):
         req = """INSERT INTO books (name, author, year, genre, num_shelf)
-        VALUES (?, ?, ?, ?, ?);"""
+        VALUES (?, ?, ?, ?, ?)"""
         self.con.execute(req, [name, author, year, genre, num_shelf])
         self.con.commit()
 
@@ -100,7 +106,7 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
             self.shelf -= 1
 
 
-class AddingBook(QWidget, Ui_add_form):  # класс формы добавления
+class AddingBook(QMainWindow, Ui_add_form):  # класс формы добавления
     def __init__(self, parent=None):
         super(AddingBook, self).__init__(parent)
         self.setupUi(self)
@@ -116,7 +122,7 @@ class AddingBook(QWidget, Ui_add_form):  # класс формы добавле�
         self.close()
 
 
-class DeleteBook(QWidget, Ui_del_form):  # класс формы удаления
+class DeleteBook(QMainWindow, Ui_del_form):  # класс формы удаления
     def __init__(self, parent=None):
         super(DeleteBook, self).__init__(parent)
         self.setupUi(self)
@@ -131,7 +137,7 @@ class DeleteBook(QWidget, Ui_del_form):  # класс формы удалени�
         self.close()
 
 
-class ChangeInf(QWidget, Ui_change_form):  # класс формы редактирования
+class ChangeInf(QMainWindow, Ui_change_form):  # класс формы редактирования
     def __init__(self, parent=None):
         super(ChangeInf, self).__init__(parent)
         self.setupUi(self)

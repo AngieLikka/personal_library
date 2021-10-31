@@ -511,7 +511,7 @@ class Ui_list_shelfes(object):
         list_shelfes.setStatusBar(self.statusbar)
 
         self.retranslateUi(list_shelfes)
-        self.mW.setCurrentIndex(1)
+        self.mW.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(list_shelfes)
 
     def retranslateUi(self, list_shelfes):
