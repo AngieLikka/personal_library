@@ -17,23 +17,27 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
 
         self.con = sqlite3.connect('books.sqlite')
         self.create_table()
-        self.redraw_table()
         self.titles = None
+
+        self.params = {'id': 'id', 'Название': 'title',
+                       'Автор': 'author', 'Год издания': 'year', 'Жанр': 'genre'}
+        self.cB_choosepar.addItems(list(self.params))
+        self.find.clicked.connect(self.find_books)
 
         self.row_shelfes = 0
         self.shelf = 1
+
+        self.add_new_book.clicked.connect(self.show_add_form)
+        self.change.clicked.connect(self.show_change_form)
+        self.del_elem.clicked.connect(self.show_del_form)
 
     def initUi(self):
         self.add_shelf.clicked.connect(self.new_shelf)
         self.del_shelf.clicked.connect(self.no_shelf)
         self.table_shelfes.itemClicked()  # по идее выбор полки
 
-        self.add_book.clicked.connect(self.show_add_form)
-        self.change.clicked.connect(self.show_change_form)
-        self.del_elem.clicked.connect(self.show_del_form)
-
     def create_table(self):
-        cur = self.con.cursor()  # ASK ABOUT TABLES добавь бд в папку
+        cur = self.con.cursor()  # добавь бд в папку
         request_bi = """CREATE TABLE IF NOT EXISTS books_inf(    
             id     INTEGER PRIMARY KEY UNIQUE NOT NULL,
             name   TEXT    UNIQUE NOT NULL,
@@ -52,20 +56,27 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         cur.execute(request_bi)
         self.con.commit()
 
-    def redraw_table(self):
-        pass
+    def find_books(self):
+        need_text = self.lineEdit.text()
+        need = self.params.get(self.cB_choosepar.currentText())
+
+    def add_item(self, name, author, year, genre, num_shelf):
+        req = """INSERT INTO books (name, author, year, genre, num_shelf)
+        VALUES (?, ?, ?, ?, ?);"""
+        self.con.execute(req, [name, author, year, genre, num_shelf])
+        self.con.commit()
 
     def show_add_form(self):
         self.adding_book.show()
-
-    def add_item(self, name, author, year, genre, num_shelf):
-        pass
 
     def show_change_form(self):  # нужно добавить
         self.change_inf.show()
 
     def change_item(self, name, author, year, genre, num_shelf):
-        pass
+        req = """UPDATE books SET name = ?, author = ?,
+        year = ?, genre = ?, shelf = ? WHERE id = ?"""
+        self.con.execute(req, [name, author, year, genre, num_shelf])
+        self.con.commit()
 
     def show_del_form(self):
         self.delete_book.show()
@@ -74,7 +85,6 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         req = """DELETE FROM books WHERE id = ?;"""
         self.con.execute(req, [id])
         self.con.commit()
-        self.redraw_table()
 
     def new_shelf(self):
         self.table_shelfes.setItem(self.row_shelfes, 0, self.shelf)  # исправить
@@ -94,9 +104,9 @@ class AddingBook(QWidget, Ui_add_form):  # класс формы добавле�
     def __init__(self, parent=None):
         super(AddingBook, self).__init__(parent)
         self.setupUi(self)
-        self.pushButton.clicked.connect(self.add_book)
+        self.pushButton.clicked.connect(self.add_elem)
 
-    def add_book(self):
+    def add_elem(self):
         name = self.name_inp.text()
         author = self.author_inp.text()
         year = self.year_inp.text()
@@ -114,7 +124,7 @@ class DeleteBook(QWidget, Ui_del_form):  # класс формы удалени�
 
     def del_book(self):
         id = self.lineEdit.text()
-        valid = QMessageBox.question(self, 'Вопрос', 'Действительно удалить элемент с id:' + str(id),
+        valid = QMessageBox.question(self, 'Удаление', 'Действительно удалить элемент с id:' + str(id),
                                      QMessageBox.Yes, QMessageBox.No)
         if valid == QMessageBox.Yes:
             self.parent().delete_item(id)
@@ -125,16 +135,14 @@ class ChangeInf(QWidget, Ui_change_form):  # класс формы редакт�
     def __init__(self, parent=None):
         super(ChangeInf, self).__init__(parent)
         self.setupUi(self)
-        self.id = None
         self.name = None
         self.author = None
         self.year = None
         self.genre = None
         self.num_shelf = None
-        self.pushButton.clicked.connect(self.change_inf)
+        self.pushButton.clicked.connect(self.change_info)
 
-    def set_info(self, id, name, author, year, genre, num_shelf):
-        self.id = id
+    def set_info(self, name, author, year, genre, num_shelf):
         self.name = name
         self.author = author
         self.year = year
@@ -146,7 +154,7 @@ class ChangeInf(QWidget, Ui_change_form):  # класс формы редакт�
         self.genre_inp.setText(genre)
         self.schelf_inp.setText(num_shelf)
 
-    def change_inf(self):
+    def change_info(self):
         name = self.name_inp.text()
         author = self.author_inp.text()
         year = self.year_inp.text()
