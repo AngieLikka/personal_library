@@ -19,6 +19,9 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.create_table()
         self.titles = None
 
+        self.names_a = []
+        self.titles_g = []
+
         self.params = {'id': 'id', 'Название': 'title',
                        'Автор': 'author', 'Год издания': 'year', 'Жанр': 'genre'}
         self.cB_choosepar.addItems(list(self.params))
@@ -121,15 +124,51 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         cur.execute(req, [title])
         self.con.commit()
 
+    def take_info_authors(self):  # формат!
+        self.con = sqlite3.connect('books.sqlite')
+        cur = self.con.cursor()
+        self.names_a = cur.execute("""SELECT name FROM authors""").fetchall()
+        self.con.commit()
+        return self.names_a
+
+    def take_info_genres(self):
+        self.con = sqlite3.connect('books.sqlite')
+        cur = self.con.cursor()
+        self.titles_g = cur.execute("""SELECT title FROM genres""").fetchall()
+        self.con.commit()
+        return self.titles_g
+
+    def current_author(self, name):
+        cur = self.con.cursor()
+        author = cur.execute("""SELECT author FROM books_inf WHERE name = ?""", [name])
+        self.con.commit()
+        return author
+
+    def current_genre(self, name):
+        cur = self.con.cursor()
+        genre = cur.execute("""SELECT genre FROM books_inf WHERE name = ?""", [name])
+        self.con.commit()
+        return genre
+
+    def current_shelf(self, name):
+        cur = self.con.cursor()
+        shelf = cur.execute("""SELECT shelf FROM books_inf WHERE name = ?""", [name])
+        self.con.commit()
+        return shelf
+
 
 class AddingBook(QMainWindow, Ui_add_form):  # класс формы добавления
     def __init__(self, parent=None):
         super(AddingBook, self).__init__(parent)
         self.setupUi(self)
         self.pushButton.clicked.connect(self.add_elem)
-        self.more_authors.clicked.connect(self.author_add)
-        self.more_genres.clicked.connect(self.genres_add)
-        self.more_shelfes.clicked.connect(self.new_shelf)
+        self.more_authors.clicked.connect(self.parent().author_add)
+        self.more_genres.clicked.connect(self.parent().genres_add)
+        self.more_shelfes.clicked.connect(self.parent().new_shelf)
+
+        self.cB_author.addItems(*self.parent().take_info_authors())
+        self.cB_genre.addItems(*self.parent().take_info_genres())
+        self.cB_shelf.addItems(self.parent().shelves)
 
     def add_elem(self):
         name = self.name_inp.text()
@@ -166,21 +205,25 @@ class ChangeInf(QMainWindow, Ui_change_form):  # класс формы реда�
         self.genre = None
         self.num_shelf = None
         self.pushButton.clicked.connect(self.change_info)
-        self.more_authors.clicked.connect(self.author_add)
-        self.more_genres.clicked.connect(self.genres_add)
-        self.more_shelfes.clicked.connect(self.new_shelf)
+        self.more_authors.clicked.connect(self.parent().author_add)
+        self.more_genres.clicked.connect(self.parent().genres_add)
+        self.more_shelfes.clicked.connect(self.parent().new_shelf)
 
-    def set_info(self, name, author, year, genre, num_shelf):  # change
+        self.cB_author.addItems(list(self.parent().take_info_authors()))
+        self.cB_genre.addItems(list(self.parent().take_info_genres()))
+        self.cB_shelf.addItems(self.parent().shelves)
+
+    def set_info(self, name, year):  # изменить
         self.name = name
-        self.author = author
+        self.author = self.parent().current_author(name)
         self.year = year
-        self.genre = genre
-        self.num_shelf = num_shelf
+        self.genre = self.parent().current_genre(name)
+        self.num_shelf = self.parent().current_shelf(name)
         self.name_inp.setText(name)
-        self.author_inp.setText(author)
+        self.cB_author.setCurrentText(self.parent().current_author(name))
         self.year_inp.setText(year)
-        self.genre_inp.setText(genre)
-        self.schelf_inp.setText(num_shelf)
+        self.genre_inp.setText(self.parent().current_genre(name))
+        self.schelf_inp.setText(self.parent().current_shelf(name))
 
     def change_info(self):
         name = self.name_inp.text()
