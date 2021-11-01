@@ -1,6 +1,6 @@
 import sys
 import sqlite3
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 from del_form2 import Ui_del_form
 from add_form import Ui_add_form
 from personal_library import Ui_list_shelfes
@@ -114,10 +114,10 @@ class AddingBook(QMainWindow, Ui_add_form):  # класс формы добав�
 
     def add_elem(self):
         name = self.name_inp.text()
-        author = self.author_inp.text()
+        author = self.cB_author.currentText()
         year = self.year_inp.text()
-        genre = self.genre_inp.text()
-        num_shelf = self.schelf_inp.text()
+        genre = self.cB_genre.currentText()
+        num_shelf = self.cB_shelf.currentText()
         self.parent().add_item(name, author, year, genre, num_shelf)
         self.close()
 
