@@ -5,6 +5,8 @@ from del_form2 import Ui_del_form
 from add_form import Ui_add_form
 from personal_library import Ui_list_shelfes
 from change_form import Ui_change_form
+from more_a import Ui_more_authors
+from more_g import Ui_more_genres
 
 
 class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
@@ -14,6 +16,8 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.adding_book = AddingBook(self)
         self.delete_book = DeleteBook(self)
         self.change_inf = ChangeInf(self)
+        self.more_authors = AddAuthor(self)
+        self.more_genre = AddGenre(self)
 
         self.con = sqlite3.connect('books.sqlite')
         self.create_table()
@@ -36,6 +40,9 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.del_elem.clicked.connect(self.show_del_form)
 
     def initUi(self):
+        self.table_shelfes.setRowCount(len(self.shelves))
+        self.table_shelfes.setColumnCount(1)
+        self.table_shelfes.setHorizontalHeader('№ Полки')
         self.add_shelf.clicked.connect(self.new_shelf)
         self.del_shelf.clicked.connect(self.no_shelf)
         self.table_shelfes.itemClicked()  # по идее выбор полки
@@ -61,8 +68,8 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.con.commit()
         genres = ['детектив', 'фантастика', 'приключения', 'роман', 'научно-популярная литература',
                   'юмор', 'фэнтези', 'учебная литература', 'поэзия']
-        for i in range(len(genres)):
-            cur.execute('''INSERT INTO genres (title)  VALUES (?)''', [genres[i]])
+        for i in genres:
+            cur.execute('''INSERT INTO genres (title)  VALUES (?)''', [i])
         self.con.commit()
 
     def find_books(self):
@@ -110,18 +117,22 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
             self.row_shelfes -= 1
             self.shelf -= 1
 
-    def author_add(self):  # добавление элементов в таблицу авторов
+    def show_more_a(self):
+        self.more_authors.show()
+
+    def show_more_g(self):
+        self.more_genre.show()
+
+    def author_add(self, name_a):  # добавление элементов в таблицу авторов
         cur = self.con.cursor()
-        title = input()
         req = """INSERT INTO authors (title) VALUES (?)"""
-        cur.execute(req, [title])
+        cur.execute(req, [name_a])
         self.con.commit()
 
-    def genres_add(self):  # добавление элементов в таблицу жанров
+    def genres_add(self, title_g):  # добавление элементов в таблицу жанров
         cur = self.con.cursor()
-        title = input()
         req = """INSERT INTO genres (title) VALUES (?)"""
-        cur.execute(req, [title])
+        cur.execute(req, [title_g])
         self.con.commit()
 
     def take_info_authors(self):  # формат!
@@ -129,14 +140,15 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         cur = self.con.cursor()
         self.names_a = cur.execute("""SELECT name FROM authors""").fetchall()
         self.con.commit()
-        return self.names_a
+        return map(list, self.names_a)
 
     def take_info_genres(self):
         self.con = sqlite3.connect('books.sqlite')
         cur = self.con.cursor()
+        # self.con.row_factory = lambda self.cur, row: (str(row[0]) + ". " + row[1], row[0])
         self.titles_g = cur.execute("""SELECT title FROM genres""").fetchall()
         self.con.commit()
-        return self.titles_g
+        return map(list, self.titles_g)
 
     def current_author(self, name):
         cur = self.con.cursor()
@@ -162,13 +174,13 @@ class AddingBook(QMainWindow, Ui_add_form):  # класс формы добав�
         super(AddingBook, self).__init__(parent)
         self.setupUi(self)
         self.pushButton.clicked.connect(self.add_elem)
-        self.more_authors.clicked.connect(self.parent().author_add)
-        self.more_genres.clicked.connect(self.parent().genres_add)
+        self.more_authors.clicked.connect(self.parent().show_more_a)
+        self.more_genres.clicked.connect(self.parent().show_more_g)
         self.more_shelfes.clicked.connect(self.parent().new_shelf)
 
-        self.cB_author.addItems(*self.parent().take_info_authors())
-        self.cB_genre.addItems(*self.parent().take_info_genres())
-        self.cB_shelf.addItems(self.parent().shelves)
+        # self.cB_author.addItems(self.parent().take_info_authors())
+        # self.cB_genre.addItems(self.parent().take_info_genres())
+        # self.cB_shelf.addItems(self.parent().shelves)
 
     def add_elem(self):
         name = self.name_inp.text()
@@ -205,13 +217,13 @@ class ChangeInf(QMainWindow, Ui_change_form):  # класс формы реда�
         self.genre = None
         self.num_shelf = None
         self.pushButton.clicked.connect(self.change_info)
-        self.more_authors.clicked.connect(self.parent().author_add)
-        self.more_genres.clicked.connect(self.parent().genres_add)
+        self.more_authors.clicked.connect(self.parent().show_more_a)
+        self.more_genres.clicked.connect(self.parent().show_more_g)
         self.more_shelfes.clicked.connect(self.parent().new_shelf)
 
-        self.cB_author.addItems(list(self.parent().take_info_authors()))
-        self.cB_genre.addItems(list(self.parent().take_info_genres()))
-        self.cB_shelf.addItems(self.parent().shelves)
+        # self.cB_author.addItems(list(self.parent().take_info_authors()))
+        # self.cB_genre.addItems(list(self.parent().take_info_genres()))
+        # self.cB_shelf.addItems(self.parent().shelves)
 
     def set_info(self, name, year):  # изменить
         self.name = name
@@ -232,6 +244,30 @@ class ChangeInf(QMainWindow, Ui_change_form):  # класс формы реда�
         genre = self.cB_genre.currentText()
         num_shelf = self.cB_shelf.currentText()
         self.parent().change_item(name, author, year, genre, num_shelf)
+        self.close()
+
+
+class AddAuthor(Ui_more_authors, QMainWindow):  # класс формы добавления авторов
+    def __init__(self, parent=None):
+        super(AddAuthor, self).__init__(parent)
+        self.setupUi(self)
+        self.save_new_a.clicked.connect(self.new_elem)
+
+    def new_elem(self):
+        name_a = self.author_inp.text()
+        self.parent().author_add(name_a)
+        self.close()
+
+
+class AddGenre(Ui_more_genres, QMainWindow):    # класс формы добавления жанров
+    def __init__(self, parent=None):
+        super(AddGenre, self).__init__(parent)
+        self.setupUi(self)
+        self.save_new_g.clicked.connect(self.new_elem)
+
+    def new_elem(self):
+        title_g = self.genre_inp.text()
+        self.parent().genre_add(title_g)
         self.close()
 
 

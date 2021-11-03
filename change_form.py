@@ -15,6 +15,11 @@ class Ui_change_form(object):
     def setupUi(self, change_form):
         change_form.setObjectName("change_form")
         change_form.resize(364, 384)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(change_form.sizePolicy().hasHeightForWidth())
+        change_form.setSizePolicy(sizePolicy)
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -110,7 +115,7 @@ class Ui_change_form(object):
 
     def retranslateUi(self, change_form):
         _translate = QtCore.QCoreApplication.translate
-        change_form.setWindowTitle(_translate("change_form", "Добавление"))
+        change_form.setWindowTitle(_translate("change_form", "Редактирование"))
         self.label.setText(_translate("change_form", "Введите новую информацию о книге:"))
         self.lbl_name.setText(_translate("change_form", "Название"))
         self.lbl_author.setText(_translate("change_form", "Автор"))

@@ -10,6 +10,12 @@
     <height>384</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="palette">
    <palette>
     <active>
@@ -80,7 +86,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Добавление</string>
+   <string>Редактирование</string>
   </property>
   <widget class="QLabel" name="label">
    <property name="geometry">

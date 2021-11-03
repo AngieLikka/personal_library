@@ -15,6 +15,11 @@ class Ui_add_form(object):
     def setupUi(self, add_form):
         add_form.setObjectName("add_form")
         add_form.resize(364, 384)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(add_form.sizePolicy().hasHeightForWidth())
+        add_form.setSizePolicy(sizePolicy)
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(QtCore.Qt.SolidPattern)

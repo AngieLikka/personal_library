@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>del_form</class>
- <widget class="QWidget" name="del_form">
+ <class>more_genres</class>
+ <widget class="QWidget" name="more_genres">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>243</width>
-    <height>206</height>
+    <width>312</width>
+    <height>213</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -81,25 +81,15 @@
    </palette>
   </property>
   <property name="windowTitle">
-   <string>Удаление элемента</string>
+   <string>Добавление жанров</string>
   </property>
-  <widget class="QLineEdit" name="lineEdit">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>80</y>
-     <width>151</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>20</y>
-     <width>171</width>
-     <height>41</height>
+     <x>50</x>
+     <y>40</y>
+     <width>221</width>
+     <height>30</height>
     </rect>
    </property>
    <property name="font">
@@ -107,21 +97,98 @@
      <pointsize>12</pointsize>
     </font>
    </property>
-   <property name="toolTipDuration">
-    <number>-1</number>
-   </property>
    <property name="text">
-    <string>Введите id элемента</string>
+    <string>Введите новый жанр</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="del_btn">
+  <widget class="QLineEdit" name="genre_inp">
    <property name="geometry">
     <rect>
-     <x>40</x>
+     <x>50</x>
+     <y>80</y>
+     <width>211</width>
+     <height>41</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="save_new_g">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
      <y>140</y>
-     <width>151</width>
+     <width>110</width>
      <height>30</height>
     </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="palette">
+    <palette>
+     <active>
+      <colorrole role="Base">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>245</green>
+         <blue>233</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="Window">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>245</green>
+         <blue>233</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </active>
+     <inactive>
+      <colorrole role="Base">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>245</green>
+         <blue>233</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="Window">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>245</green>
+         <blue>233</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </inactive>
+     <disabled>
+      <colorrole role="Base">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>245</green>
+         <blue>233</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="Window">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>255</red>
+         <green>245</green>
+         <blue>233</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </disabled>
+    </palette>
    </property>
    <property name="font">
     <font>
@@ -129,10 +196,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Удалить элелемент</string>
-   </property>
-   <property name="autoRepeatInterval">
-    <number>100</number>
+    <string>Сохранить</string>
    </property>
   </widget>
  </widget>
