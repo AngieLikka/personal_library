@@ -47,6 +47,9 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.del_shelf.clicked.connect(self.no_shelf)
         self.table_shelfes.itemClicked()  # по идее выбор полки
 
+        self.add_book.clicked.connect(self.show_add_form)
+        self.on_shelf.clicked.connect(self.show_change_form())
+
     def create_table(self):
         cur = self.con.cursor()
         request_bi = """CREATE TABLE IF NOT EXISTS books_inf(    
@@ -68,8 +71,10 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.con.commit()
         genres = ['детектив', 'фантастика', 'приключения', 'роман', 'научно-популярная литература',
                   'юмор', 'фэнтези', 'учебная литература', 'поэзия']
-        for i in genres:
-            cur.execute('''INSERT INTO genres (title)  VALUES (?)''', [i])
+        temp = list(cur.execute("""SELECT title FROM genres"""))
+        if len(temp) == 0:
+            for i in genres:
+                cur.execute('''INSERT INTO genres (title)  VALUES (?)''', [i])
         self.con.commit()
 
     def find_books(self):
@@ -77,9 +82,11 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         need = self.params.get(self.cB_choosepar.currentText())
 
     def add_item(self, name, author, year, genre, num_shelf):
+        ind_author = self.con.execute("""SELECT id FROM authors WHERE name = ?""", [author])
+        ind_genre = self.con.execute("""SELECT id FROM genres WHERE title = ?""", [genre])
         req = """INSERT INTO books (name, author, year, genre, num_shelf)
         VALUES (?, ?, ?, ?, ?)"""
-        self.con.execute(req, [name, author, year, genre, num_shelf])
+        self.con.execute(req, [name, ind_author, year, ind_genre, num_shelf])
         self.con.commit()
 
     def show_add_form(self):
@@ -89,9 +96,11 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.change_inf.show()
 
     def change_item(self, name, author, year, genre, num_shelf):
+        ind_author = self.con.execute("""SELECT id FROM authors WHERE name = ?""", [author])
+        ind_genre = self.con.execute("""SELECT id FROM genres WHERE title = ?""", [genre])
         req = """UPDATE books SET name = ?, author = ?,
         year = ?, genre = ?, shelf = ? WHERE id = ?"""
-        self.con.execute(req, [name, author, year, genre, num_shelf])
+        self.con.execute(req, [name, ind_author, year, ind_genre, num_shelf])
         self.con.commit()
 
     def show_del_form(self):
@@ -125,46 +134,45 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
 
     def author_add(self, name_a):  # добавление элементов в таблицу авторов
         cur = self.con.cursor()
-        req = """INSERT INTO authors (title) VALUES (?)"""
-        cur.execute(req, [name_a])
+        req = """INSERT INTO authors (name) VALUES (?)"""
+        self.con.execute(req, [name_a])
         self.con.commit()
 
     def genres_add(self, title_g):  # добавление элементов в таблицу жанров
         cur = self.con.cursor()
         req = """INSERT INTO genres (title) VALUES (?)"""
-        cur.execute(req, [title_g])
+        self.con.execute(req, [title_g])
         self.con.commit()
 
     def take_info_authors(self):  # формат!
         self.con = sqlite3.connect('books.sqlite')
         cur = self.con.cursor()
-        self.names_a = cur.execute("""SELECT name FROM authors""").fetchall()
+        self.names_a = self.con.execute("""SELECT name FROM authors""").fetchall()
         self.con.commit()
         return map(list, self.names_a)
 
     def take_info_genres(self):
         self.con = sqlite3.connect('books.sqlite')
         cur = self.con.cursor()
-        # self.con.row_factory = lambda self.cur, row: (str(row[0]) + ". " + row[1], row[0])
-        self.titles_g = cur.execute("""SELECT title FROM genres""").fetchall()
+        self.titles_g = self.con.execute("""SELECT title FROM genres""").fetchall()
         self.con.commit()
         return map(list, self.titles_g)
 
     def current_author(self, name):
         cur = self.con.cursor()
-        author = cur.execute("""SELECT author FROM books_inf WHERE name = ?""", [name])
+        author = self.con.execute("""SELECT author FROM books_inf WHERE name = ?""", [name])
         self.con.commit()
         return author
 
     def current_genre(self, name):
         cur = self.con.cursor()
-        genre = cur.execute("""SELECT genre FROM books_inf WHERE name = ?""", [name])
+        genre = self.con.execute("""SELECT genre FROM books_inf WHERE name = ?""", [name])
         self.con.commit()
         return genre
 
     def current_shelf(self, name):
         cur = self.con.cursor()
-        shelf = cur.execute("""SELECT shelf FROM books_inf WHERE name = ?""", [name])
+        shelf = self.con.execute("""SELECT shelf FROM books_inf WHERE name = ?""", [name])
         self.con.commit()
         return shelf
 
@@ -178,9 +186,9 @@ class AddingBook(QMainWindow, Ui_add_form):  # класс формы добав�
         self.more_genres.clicked.connect(self.parent().show_more_g)
         self.more_shelfes.clicked.connect(self.parent().new_shelf)
 
-        # self.cB_author.addItems(self.parent().take_info_authors())
-        # self.cB_genre.addItems(self.parent().take_info_genres())
-        # self.cB_shelf.addItems(self.parent().shelves)
+        self.cB_author.addItems(self.parent().take_info_authors())
+        self.cB_genre.addItems(self.parent().take_info_genres())
+        self.cB_shelf.addItems(self.parent().shelves)
 
     def add_elem(self):
         name = self.name_inp.text()
@@ -221,9 +229,9 @@ class ChangeInf(QMainWindow, Ui_change_form):  # класс формы реда�
         self.more_genres.clicked.connect(self.parent().show_more_g)
         self.more_shelfes.clicked.connect(self.parent().new_shelf)
 
-        # self.cB_author.addItems(list(self.parent().take_info_authors()))
-        # self.cB_genre.addItems(list(self.parent().take_info_genres()))
-        # self.cB_shelf.addItems(self.parent().shelves)
+        self.cB_author.addItems(list(self.parent().take_info_authors()))
+        self.cB_genre.addItems(list(self.parent().take_info_genres()))
+        self.cB_shelf.addItems(self.parent().shelves)
 
     def set_info(self, name, year):  # изменить
         self.name = name
