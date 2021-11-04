@@ -250,6 +250,7 @@ class DeleteBook(QMainWindow, Ui_del_form):  # класс формы удале�
                                      QMessageBox.Yes, QMessageBox.No)
         if valid == QMessageBox.Yes:
             self.parent().delete_item(id)
+        self.lineEdit.clear()
         self.close()
 
 
@@ -314,6 +315,7 @@ class AddAuthor(Ui_more_authors, QMainWindow):  # класс формы доба
     def new_elem(self):
         name_a = self.author_inp.text()
         self.parent().author_add(name_a)
+        self.author_inp.clear()
         self.close()
 
 
@@ -326,6 +328,7 @@ class AddGenre(Ui_more_genres, QMainWindow):  # класс формы добав
     def new_elem(self):
         title_g = self.genre_inp.text()
         self.parent().genre_add(title_g)
+        self.genre_inp.clear()
         self.close()
 
 
