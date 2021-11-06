@@ -21,7 +21,6 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
 
         self.con = sqlite3.connect('books.sqlite')
         self.create_table()
-        self.titles = None
 
         self.names_a = []
         self.titles_g = []
@@ -33,12 +32,14 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.find.clicked.connect(self.find_books)
 
         self.add_new_book.clicked.connect(self.show_add_form)
-        self.change.clicked.connect(self.show_change_form)
+        self.book_table.cellClicked.connect(self.show_change_form)
         self.del_elem.clicked.connect(self.show_del_form)
 
         self.list_shelf.addItems(map(str, self.take_info_shelves()))
         self.add_shelf.clicked.connect(self.add_new_shelf)
         self.del_shelf.clicked.connect(self.no_shelf)
+        self.list_shelf.setSelectionMode(1)
+        self.list_shelf.itemClicked.connect(self.show_shelf_books)
 
         # self.add_book.clicked.connect(self.show_add_form)
         # self.on_shelf.clicked.connect(self.show_change_form())
@@ -75,9 +76,62 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
                 cur.execute('''INSERT INTO genres (title)  VALUES (?)''', [i])
         self.con.commit()
 
+    def show_shelf_books(self):
+        self.con = sqlite3.connect('books.sqlite')
+        cur = self.con.cursor()
+        num = self.list_shelf.currentItem().text()
+        req = """SELECT b.id, b.name, a.name, b.year, g.title FROM authors as a,
+         genres as g JOIN books_inf as b ON b.author = a.id and b.genre = g.id WHERE b.shelf = ?"""
+        result = cur.execute(req, [num]).fetchall()
+        self.con.commit()
+        self.list_of_books.setRowCount(len(result))
+        if len(result):
+            self.list_of_books.setColumnCount(len(result[0]))
+        headers = ['id', 'name', 'author', 'year', 'genre']
+        self.list_of_books.setHorizontalHeaderLabels(headers)
+        for i, elem in enumerate(result):
+            for j, val in enumerate(elem):
+                self.list_of_books.setItem(i, j, QTableWidgetItem(str(val)))
+
     def find_books(self):  # показывает книги по параметру
+        self.con = sqlite3.connect('books.sqlite')
+        cur = self.con.cursor()
         need_text = self.lineEdit.text()
         need = self.params.get(self.cB_choosepar.currentText())
+        cur = self.con.cursor()
+        res = []
+        if need == 'id':
+            req = """SELECT b.id, b.name, a.name, b.year, g.title, b.shelf FROM books_inf as b, authors as a, 
+            genres as g WHERE b.author = a.id and b.genre = g.id and b.id = ?"""
+            res = self.con.execute(req, [need_text]).fetchall()
+        elif need == 'title':
+            req = """SELECT b.id, b.name, a.name, b.year, g.title, b.shelf FROM books_inf as b, authors as a, 
+            genres as g WHERE b.author = a.id and b.genre = g.id and b.name = ?"""
+            res = self.con.execute(req, [need_text]).fetchall()
+        elif need == 'author':
+            req = """SELECT b.id, b.name, a.name, b.year, g.title, b.shelf FROM books_inf as b, authors as a, 
+                        genres as g WHERE b.author = a.id and b.genre = g.id and a.name = ?"""
+            res = self.con.execute(req, [need_text]).fetchall()
+        elif need == 'year':
+            req = """SELECT b.id, b.name, a.name, b.year, g.title, b.shelf FROM books_inf as b, authors as a, 
+                        genres as g WHERE b.author = a.id and b.genre = g.id and b.year = ?"""
+            res = self.con.execute(req, [int(need_text)]).fetchall()
+        elif need == 'genre':
+            req = """SELECT b.id, b.name, a.name, b.year, g.title, b.shelf FROM books_inf as b, authors as a, 
+                        genres as g WHERE b.author = a.id and b.genre = g.id and g.title = ?"""
+            res = self.con.execute(req, [need_text]).fetchall()
+        self.con.commit()
+        if len(res) == 0:
+            self.ifno_inf.setText('Ничего не найдено. Проверьте написание параметра')
+        self.book_table.setRowCount(len(res))
+        if len(res):
+            self.book_table.setColumnCount(len(res[0]))
+        headers = ['id', 'Название', "Автор", "Год издания", "Жанр", "№ Полки"]
+        self.book_table.setHorizontalHeaderLabels(headers)
+        print(res)
+        for i, elem in enumerate(res):
+            for j, val in enumerate(elem):
+                self.book_table.setItem(i, j, QTableWidgetItem(str(val)))
 
     def add_item(self, name, author, year, genre, num_shelf):  # добавление книг в бд
         cur = self.con.cursor()
@@ -209,8 +263,6 @@ class AddingBook(QMainWindow, Ui_add_form):  # класс формы добав�
 
         self.cB_author.addItems(self.parent().take_info_authors())
         self.cB_genre.addItems(self.parent().take_info_genres())
-        # self.cB_shelf.clear()
-        # self.cB_shelf.addItems(map(str, self.parent().take_info_shelves()))
 
     def load_shelves(self):
         self.cB_shelf.clear()
@@ -235,6 +287,8 @@ class AddingBook(QMainWindow, Ui_add_form):  # класс формы добав�
         genre = self.cB_genre.currentText()
         num_shelf = self.cB_shelf.currentText()
         self.parent().add_item(name, author, year, genre, num_shelf)
+        self.name_inp.clear()
+        self.year_inp.clear()
         self.close()
 
 

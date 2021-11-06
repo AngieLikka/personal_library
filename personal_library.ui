@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>665</width>
-    <height>600</height>
+    <width>820</width>
+    <height>588</height>
    </rect>
   </property>
   <property name="palette">
@@ -110,8 +110,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>1161</width>
-      <height>711</height>
+      <width>1181</width>
+      <height>671</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -595,7 +595,7 @@
         <widget class="QListWidget" name="list_shelf">
          <property name="font">
           <font>
-           <pointsize>12</pointsize>
+           <pointsize>14</pointsize>
           </font>
          </property>
         </widget>
@@ -1073,7 +1073,7 @@
        <rect>
         <x>240</x>
         <y>60</y>
-        <width>371</width>
+        <width>561</width>
         <height>371</height>
        </rect>
       </property>
@@ -1091,47 +1091,28 @@
         </widget>
        </item>
        <item>
-        <widget class="QTableView" name="list_of_books">
-         <property name="palette">
-          <palette>
-           <active>
-            <colorrole role="Base">
-             <brush brushstyle="SolidPattern">
-              <color alpha="255">
-               <red>255</red>
-               <green>249</green>
-               <blue>200</blue>
-              </color>
-             </brush>
-            </colorrole>
-           </active>
-           <inactive>
-            <colorrole role="Base">
-             <brush brushstyle="SolidPattern">
-              <color alpha="255">
-               <red>255</red>
-               <green>249</green>
-               <blue>200</blue>
-              </color>
-             </brush>
-            </colorrole>
-           </inactive>
-           <disabled>
-            <colorrole role="Base">
-             <brush brushstyle="SolidPattern">
-              <color alpha="255">
-               <red>240</red>
-               <green>240</green>
-               <blue>240</blue>
-              </color>
-             </brush>
-            </colorrole>
-           </disabled>
-          </palette>
-         </property>
-        </widget>
+        <widget class="QTableWidget" name="list_of_books"/>
        </item>
       </layout>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>460</y>
+        <width>601</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="text">
+       <string>Нажмите на номер полки в списке, чтобы посмотреть книги на ней</string>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="find_book">
@@ -1195,7 +1176,7 @@
        <rect>
         <x>160</x>
         <y>60</y>
-        <width>340</width>
+        <width>501</width>
         <height>30</height>
        </rect>
       </property>
@@ -1205,7 +1186,7 @@
        <rect>
         <x>30</x>
         <y>130</y>
-        <width>601</width>
+        <width>760</width>
         <height>341</height>
        </rect>
       </property>
@@ -1214,43 +1195,13 @@
         <pointsize>10</pointsize>
        </font>
       </property>
-      <column>
-       <property name="text">
-        <string>id</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Название</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Автор</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Год</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Жанр</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>№ Полки</string>
-       </property>
-      </column>
      </widget>
      <widget class="QPushButton" name="add_new_book">
       <property name="geometry">
        <rect>
         <x>30</x>
         <y>10</y>
-        <width>600</width>
+        <width>761</width>
         <height>30</height>
        </rect>
       </property>
@@ -1266,7 +1217,7 @@
      <widget class="QPushButton" name="find">
       <property name="geometry">
        <rect>
-        <x>510</x>
+        <x>670</x>
         <y>60</y>
         <width>120</width>
         <height>30</height>
@@ -1286,7 +1237,7 @@
        <rect>
         <x>30</x>
         <y>490</y>
-        <width>291</width>
+        <width>370</width>
         <height>30</height>
        </rect>
       </property>
@@ -1302,9 +1253,9 @@
      <widget class="QPushButton" name="del_elem">
       <property name="geometry">
        <rect>
-        <x>340</x>
+        <x>420</x>
         <y>490</y>
-        <width>291</width>
+        <width>370</width>
         <height>30</height>
        </rect>
       </property>
@@ -1322,13 +1273,14 @@
        <rect>
         <x>30</x>
         <y>89</y>
-        <width>281</width>
+        <width>681</width>
         <height>41</height>
        </rect>
       </property>
       <property name="font">
        <font>
         <pointsize>10</pointsize>
+        <italic>true</italic>
        </font>
       </property>
       <property name="text">
@@ -1345,7 +1297,7 @@
        <rect>
         <x>20</x>
         <y>80</y>
-        <width>291</width>
+        <width>441</width>
         <height>361</height>
        </rect>
       </property>
@@ -1437,7 +1389,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>665</width>
+     <width>820</width>
      <height>21</height>
     </rect>
    </property>

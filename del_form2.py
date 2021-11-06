@@ -65,4 +65,4 @@ class Ui_del_form(object):
         _translate = QtCore.QCoreApplication.translate
         del_form.setWindowTitle(_translate("del_form", "Удаление элемента"))
         self.label.setText(_translate("del_form", "Введите id элемента"))
-        self.del_btn.setText(_translate("del_form", "Удалить элелемент"))
+        self.del_btn.setText(_translate("del_form", "Удалить элемент"))

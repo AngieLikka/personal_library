@@ -129,7 +129,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Удалить элелемент</string>
+    <string>Удалить элемент</string>
    </property>
    <property name="autoRepeatInterval">
     <number>100</number>
