@@ -1187,7 +1187,7 @@
         <x>30</x>
         <y>130</y>
         <width>760</width>
-        <height>341</height>
+        <height>311</height>
        </rect>
       </property>
       <property name="font">
@@ -1232,30 +1232,12 @@
        <string>Найти</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="change">
-      <property name="geometry">
-       <rect>
-        <x>30</x>
-        <y>490</y>
-        <width>370</width>
-        <height>30</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string>Редактировать информацию</string>
-      </property>
-     </widget>
      <widget class="QPushButton" name="del_elem">
       <property name="geometry">
        <rect>
-        <x>420</x>
+        <x>29</x>
         <y>490</y>
-        <width>370</width>
+        <width>761</width>
         <height>30</height>
        </rect>
       </property>
@@ -1273,7 +1255,26 @@
        <rect>
         <x>30</x>
         <y>89</y>
-        <width>681</width>
+        <width>761</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QLabel" name="ifchange">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>450</y>
+        <width>761</width>
         <height>41</height>
        </rect>
       </property>

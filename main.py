@@ -31,6 +31,7 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.cB_choosepar.addItems(list(self.params))
         self.find.clicked.connect(self.find_books)
 
+        self.ifchange.setText('Для редактирования нажмите на любую ячейку элемента')
         self.add_new_book.clicked.connect(self.show_add_form)
         self.book_table.cellClicked.connect(self.show_change_form)
         self.del_elem.clicked.connect(self.show_del_form)
@@ -98,8 +99,8 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         cur = self.con.cursor()
         need_text = self.lineEdit.text()
         need = self.params.get(self.cB_choosepar.currentText())
-        cur = self.con.cursor()
         res = []
+        self.ifno_inf.clear()
         if need == 'id':
             req = """SELECT b.id, b.name, a.name, b.year, g.title, b.shelf FROM books_inf as b, authors as a, 
             genres as g WHERE b.author = a.id and b.genre = g.id and b.id = ?"""
@@ -128,7 +129,6 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
             self.book_table.setColumnCount(len(res[0]))
         headers = ['id', 'Название', "Автор", "Год издания", "Жанр", "№ Полки"]
         self.book_table.setHorizontalHeaderLabels(headers)
-        print(res)
         for i, elem in enumerate(res):
             for j, val in enumerate(elem):
                 self.book_table.setItem(i, j, QTableWidgetItem(str(val)))
@@ -145,16 +145,21 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.adding_book.load_shelves()
         self.adding_book.show()
 
-    def show_change_form(self):  # нужно добавить показывает форму редактирования
+    def show_change_form(self):  # показывает форму редактирования
+        self.change_inf.load_shelves()
+        self.change_inf.set_info(self.book_table.item(self.book_table.currentRow(), 1).text(),
+                                 self.book_table.item(self.book_table.currentRow(),3).text())
         self.change_inf.show()
 
-    def change_item(self, name, author, year, genre, num_shelf):  # редактирование элементов
+    def change_item(self, name, author, year, genre, num_shelf, oldname):  # редактирование элементов
         ind_author = self.con.execute("""SELECT id FROM authors WHERE name = ?""", [author])
         ind_genre = self.con.execute("""SELECT id FROM genres WHERE title = ?""", [genre])
-        req = """UPDATE books SET name = ?, author = ?,
+        id = self.con.execute("""SELECT id FROM books_inf WHERE name = ?""", [oldname])
+        req = """UPDATE books_inf SET name = ?, author = ?,
         year = ?, genre = ?, shelf = ? WHERE id = ?"""
-        self.con.execute(req, [name, ind_author, year, ind_genre, num_shelf])
+        self.con.execute(req, [name, int(*ind_author), year, int(*ind_genre), num_shelf, int(*id)])
         self.con.commit()
+        self.find_books()
 
     def show_del_form(self):  # показывает форму удаления
         self.delete_book.show()
@@ -235,21 +240,24 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
 
     def current_author(self, name):
         cur = self.con.cursor()
-        author = self.con.execute("""SELECT author FROM books_inf WHERE name = ?""", [name])
+        self.con.row_factory = lambda cur, row: row[0]
+        req = """SELECT name FROM authors WHERE id = (SELECT author FROM books_inf WHERE name = ?)"""
+        author = self.con.execute(req, [name])
         self.con.commit()
-        return author
+        return str(*author)
 
     def current_genre(self, name):
         cur = self.con.cursor()
-        genre = self.con.execute("""SELECT genre FROM books_inf WHERE name = ?""", [name])
+        genre = self.con.execute("""SELECT title FROM genres WHERE id = 
+        (SELECT genre FROM books_inf WHERE name = ?)""", [name])
         self.con.commit()
-        return genre
+        return str(*genre)
 
     def current_shelf(self, name):
         cur = self.con.cursor()
         shelf = self.con.execute("""SELECT shelf FROM books_inf WHERE name = ?""", [name])
         self.con.commit()
-        return shelf
+        return str(*shelf)
 
 
 class AddingBook(QMainWindow, Ui_add_form):  # класс формы добавления
@@ -263,6 +271,7 @@ class AddingBook(QMainWindow, Ui_add_form):  # класс формы добав�
 
         self.cB_author.addItems(self.parent().take_info_authors())
         self.cB_genre.addItems(self.parent().take_info_genres())
+        self.name = ''
 
     def load_shelves(self):
         self.cB_shelf.clear()
@@ -326,17 +335,15 @@ class ChangeInf(QMainWindow, Ui_change_form):  # класс формы реда�
         self.cB_genre.addItems(self.parent().take_info_genres())
         self.cB_shelf.addItems(map(str, self.parent().take_info_shelves()))
 
+    def load_shelves(self):
+        self.cB_shelf.clear()
+        self.cB_shelf.addItems(map(str, self.parent().take_info_shelves()))
+
     def new_author(self, text):  # добавление автора в comboBox
         self.cB_author.addItem(text)
 
     def new_genre(self, text):  # добавление жанра в comboBox
         self.cB_genre.addItem(text)
-
-    def new_shelf(self, text):
-        self.cB_shelf.addItem(text)
-
-    def del_shelf(self):
-        self.cB_shelf.removeItem(-1)
 
     def set_info(self, name, year):  # изменить
         self.name = name
@@ -347,16 +354,17 @@ class ChangeInf(QMainWindow, Ui_change_form):  # класс формы реда�
         self.name_inp.setText(name)
         self.cB_author.setCurrentText(self.parent().current_author(name))
         self.year_inp.setText(year)
-        self.genre_inp.setText(self.parent().current_genre(name))
-        self.schelf_inp.setText(self.parent().current_shelf(name))
+        self.cB_genre.setCurrentText(self.parent().current_genre(name))
+        self.cB_shelf.setCurrentText(self.parent().current_shelf(name))
 
     def change_info(self):
+        oldname = self.name
         name = self.name_inp.text()
         author = self.cB_author.currentText()
         year = self.year_inp.text()
         genre = self.cB_genre.currentText()
         num_shelf = self.cB_shelf.currentText()
-        self.parent().change_item(name, author, year, genre, num_shelf)
+        self.parent().change_item(name, author, year, genre, num_shelf, oldname)
         self.close()
 
 
