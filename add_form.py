@@ -116,7 +116,7 @@ class Ui_add_form(object):
     def retranslateUi(self, add_form):
         _translate = QtCore.QCoreApplication.translate
         add_form.setWindowTitle(_translate("add_form", "Добавление"))
-        self.label.setText(_translate("add_form", "Введите новую информацию о книге:"))
+        self.label.setText(_translate("add_form", "Введите информацию о новой книге:"))
         self.lbl_name.setText(_translate("add_form", "Название"))
         self.lbl_author.setText(_translate("add_form", "Автор"))
         self.lbl_year.setText(_translate("add_form", "Год издания"))
