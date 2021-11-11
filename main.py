@@ -20,6 +20,7 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.more_authors = AddAuthor(self)
         self.more_genre = AddGenre(self)
         self.to_wl = ToWishlist(self)
+        self.to_shelf = FromWlToShelf(self)
 
         self.con = sqlite3.connect('books.sqlite')
         self.create_table()
@@ -45,7 +46,7 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.list_shelf.itemClicked.connect(self.show_shelf_books)
 
         self.add_book.clicked.connect(self.show_wl_form)
-        self.on_shelf.clicked.connect(self.show_change_form)
+        self.on_shelf.clicked.connect(self.show_add_wl)
         self.redraw_wl()
 
     def create_table(self):
@@ -93,7 +94,6 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         req = """SELECT b.id, b.name, a.name, b.year, g.title FROM authors as a,
          genres as g JOIN books_inf as b ON b.author = a.id and b.genre = g.id WHERE b.shelf = ?"""
         result = cur.execute(req, [num]).fetchall()
-        self.con.commit()
         self.list_of_books.setRowCount(len(result))
         if len(result):
             self.list_of_books.setColumnCount(len(result[0]))
@@ -130,7 +130,6 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
             req = """SELECT b.id, b.name, a.name, b.year, g.title, b.shelf FROM books_inf as b, authors as a, 
                         genres as g WHERE b.author = a.id and b.genre = g.id and g.title = ?"""
             res = self.con.execute(req, [need_text]).fetchall()
-        self.con.commit()
         if len(res) == 0:
             self.ifno_inf.setText('Ничего не найдено. Проверьте написание параметра')
         self.book_table.setRowCount(len(res))
@@ -182,7 +181,6 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         cur = self.con.cursor()
         self.con.row_factory = lambda cur, row: row[0]
         self.sh = self.con.execute("""SELECT * FROM shelves""").fetchall()
-        self.con.commit()
         return self.sh
 
     def shelf_to_lv(self):  # добавление полки в список на экране
@@ -218,6 +216,7 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.adding_book.new_author(name_a)
         self.change_inf.new_author(name_a)
         self.to_wl.new_author(name_a)
+        self.to_shelf.new_author(name_a)
 
     def genre_add(self, title_g):  # добавление элементов в таблицу жанров
         self.con = sqlite3.connect('books.sqlite')
@@ -227,13 +226,13 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.con.commit()
         self.adding_book.new_genre(title_g)
         self.change_inf.new_genre(title_g)
+        self.to_shelf.new_genre(title_g)
 
     def take_info_authors(self):  # взятие инф-ции для comboBox с авторами
         self.con = sqlite3.connect('books.sqlite')
         cur = self.con.cursor()
         self.con.row_factory = lambda cur, row: row[1]
         self.names_a = self.con.execute("""SELECT * FROM authors""").fetchall()
-        self.con.commit()
         return self.names_a
 
     def take_info_genres(self):  # взятие инф-ции для comboBox с жанрами
@@ -241,28 +240,23 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         cur = self.con.cursor()
         self.con.row_factory = lambda cur, row: row[1]
         self.titles_g = self.con.execute("""SELECT * FROM genres""").fetchall()
-        self.con.commit()
         return self.titles_g
 
     def current_author(self, name):  # взятие автора книги для редактирования
         cur = self.con.cursor()
-        self.con.row_factory = lambda cur, row: row[0]
         req = """SELECT name FROM authors WHERE id = (SELECT author FROM books_inf WHERE name = ?)"""
         author = self.con.execute(req, [name])
-        self.con.commit()
         return str(*author)
 
     def current_genre(self, name):  # взятие жанра книги для редактирования
         cur = self.con.cursor()
         genre = self.con.execute("""SELECT title FROM genres WHERE id = 
         (SELECT genre FROM books_inf WHERE name = ?)""", [name])
-        self.con.commit()
         return str(*genre)
 
     def current_shelf(self, name):  # взятие
         cur = self.con.cursor()
         shelf = self.con.execute("""SELECT shelf FROM books_inf WHERE name = ?""", [name])
-        self.con.commit()
         return str(*shelf)
 
     def show_wl_form(self):
@@ -291,6 +285,31 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         for i, elem in enumerate(res):
             for j, value in enumerate(elem):
                 self.wishlist.setItem(i, j, QTableWidgetItem(str(value)))
+        req_p = """SELECT price FROM wishlist"""
+        prices = map(int, self.con.execute(req_p))
+        self.all_prices.setText(str(sum(prices)))
+
+    def show_add_wl(self):
+        row = list([i.row() for i in self.wishlist.selectedItems()])
+        if not len(row):
+            return
+        row = row[0]
+        info = []
+        for i in range(self.wishlist.columnCount()):
+            info.append(self.wishlist.item(row, i).text())
+        self.to_shelf.set_info(info[0], info[1])
+        self.to_shelf.show()
+
+    def author_for_wl(self, name):
+        cur = self.con.cursor()
+        req = """SELECT name FROM authors WHERE id = (SELECT author FROM wishlist WHERE name = ?)"""
+        author = self.con.execute(req, [name])
+        return str(*author)
+
+    def del_from_wl(self, id):
+        cur = self.con.cursor()
+        self.con.execute("""DELETE FROM wishlist WHERE id = ?""", [id])
+        self.con.commit()
 
 
 class AddingBook(QMainWindow, Ui_add_form):  # класс формы добавления
@@ -304,7 +323,6 @@ class AddingBook(QMainWindow, Ui_add_form):  # класс формы добав�
 
         self.cB_author.addItems(self.parent().take_info_authors())
         self.cB_genre.addItems(self.parent().take_info_genres())
-        self.name = ''
 
     def load_shelves(self):
         self.cB_shelf.clear()
@@ -372,7 +390,7 @@ class ChangeInf(QMainWindow, Ui_change_form):  # класс формы реда�
     def new_genre(self, text):  # добавление жанра в comboBox
         self.cB_genre.addItem(text)
 
-    def set_info(self, name, year):  # изменить
+    def set_info(self, name, year):
         self.name = name
         self.author = self.parent().current_author(name)
         self.year = year
@@ -438,6 +456,45 @@ class ToWishlist(QMainWindow, Ui_wl_form):
         price = self.price_inp.text()
         self.parent().add_to_wishlist(name, author, price)
         self.parent().redraw_wl()
+        self.close()
+
+
+class FromWlToShelf(QMainWindow, Ui_add_form):
+    def __init__(self, parent=None):
+        super(FromWlToShelf, self).__init__(parent)
+        self.setupUi(self)
+        self.pushButton.clicked.connect(self.add_book)
+        self.more_authors.clicked.connect(self.parent().show_more_a)
+        self.cB_author.addItems(self.parent().take_info_authors())
+        self.cB_genre.addItems(self.parent().take_info_genres())
+        self.cB_shelf.addItems(map(str, self.parent().take_info_shelves()))
+        self.more_genres.clicked.connect(self.parent().show_more_g)
+        self.more_shelfes.clicked.connect(self.parent().add_new_shelf)
+        self.id = 0
+
+    def load_shelves(self):
+        self.cB_shelf.clear()
+        self.cB_shelf.addItems(map(str, self.parent().take_info_shelves()))
+
+    def new_author(self, text):  # добавление автора в comboBox
+        self.cB_author.addItem(text)
+
+    def new_genre(self, text):  # добавление жанра в comboBox
+        self.cB_genre.addItem(text)
+
+    def set_info(self, id,  name):
+        self.id = id
+        self.name_inp.setText(name)
+        self.cB_author.setCurrentText(self.parent().author_for_wl(name))
+
+    def add_book(self):
+        name = self.name_inp.text()
+        author = self.cB_author.currentText()
+        year = self.year_inp.text()
+        genre = self.cB_genre.currentText()
+        num_shelf = self.cB_shelf.currentText()
+        self.parent().add_item(name, author, year, genre, num_shelf)
+        self.parent().del_from_wl(self.id)
         self.close()
 
 

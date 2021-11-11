@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_del_form(object):
     def setupUi(self, del_form):
         del_form.setObjectName("del_form")
-        del_form.resize(243, 206)
+        del_form.resize(318, 191)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -41,17 +41,17 @@ class Ui_del_form(object):
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Window, brush)
         del_form.setPalette(palette)
         self.lineEdit = QtWidgets.QLineEdit(del_form)
-        self.lineEdit.setGeometry(QtCore.QRect(40, 80, 151, 31))
+        self.lineEdit.setGeometry(QtCore.QRect(80, 70, 151, 31))
         self.lineEdit.setObjectName("lineEdit")
         self.label = QtWidgets.QLabel(del_form)
-        self.label.setGeometry(QtCore.QRect(40, 20, 171, 41))
+        self.label.setGeometry(QtCore.QRect(20, 20, 271, 41))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.label.setFont(font)
         self.label.setToolTipDuration(-1)
         self.label.setObjectName("label")
         self.del_btn = QtWidgets.QPushButton(del_form)
-        self.del_btn.setGeometry(QtCore.QRect(40, 140, 151, 30))
+        self.del_btn.setGeometry(QtCore.QRect(80, 120, 151, 30))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.del_btn.setFont(font)
@@ -64,5 +64,5 @@ class Ui_del_form(object):
     def retranslateUi(self, del_form):
         _translate = QtCore.QCoreApplication.translate
         del_form.setWindowTitle(_translate("del_form", "Удаление элемента"))
-        self.label.setText(_translate("del_form", "Введите id элемента"))
+        self.label.setText(_translate("del_form", "Введите id элемента для удаления"))
         self.del_btn.setText(_translate("del_form", "Удалить элемент"))
