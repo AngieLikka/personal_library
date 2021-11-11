@@ -8,6 +8,7 @@ from change_form import Ui_change_form
 from more_a import Ui_more_authors
 from more_g import Ui_more_genres
 from wl_form import Ui_wl_form
+from del_shelf import Ui_del_shelf_form
 
 
 class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
@@ -21,6 +22,7 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.more_genre = AddGenre(self)
         self.to_wl = ToWishlist(self)
         self.to_shelf = FromWlToShelf(self)
+        self.delete_shelf = DeleteShelf(self)
 
         self.con = sqlite3.connect('books.sqlite')
         self.create_table()
@@ -44,6 +46,7 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.del_shelf.clicked.connect(self.no_shelf)
         self.list_shelf.setSelectionMode(1)
         self.list_shelf.itemClicked.connect(self.show_shelf_books)
+        self.num = 0
 
         self.add_book.clicked.connect(self.show_wl_form)
         self.on_shelf.clicked.connect(self.show_add_wl)
@@ -197,10 +200,16 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
                                      QMessageBox.Yes, QMessageBox.No)
         if valid == QMessageBox.Yes:
             cur = self.con.cursor()
-            num = len(self.take_info_shelves())
-            self.con.execute("""DELETE FROM shelves WHERE id = ?""", [num])
+            self.delete_shelf.show()
+            self.num = len(self.take_info_shelves())
+            self.con.execute("""DELETE FROM shelves WHERE id = ?""", [self.num])
             self.con.commit()
-            self.list_shelf.takeItem(num - 1)
+            self.list_shelf.takeItem(self.num - 1)
+
+    def to_another_shelf(self, num_shelf):
+        cur = self.con.cursor()
+        self.con.execute("""UPDATE books_inf SET shelf = ? WHERE shelf = ?""", [num_shelf, self.num])
+        self.con.commit()
 
     def show_more_a(self):  # показывает окно добавления авторов
         self.more_authors.show()
@@ -287,7 +296,7 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
                 self.wishlist.setItem(i, j, QTableWidgetItem(str(value)))
         req_p = """SELECT price FROM wishlist"""
         prices = map(int, self.con.execute(req_p))
-        self.all_prices.setText(str(sum(prices)))
+        self.all_prices.display(str(sum(prices)))
 
     def show_add_wl(self):
         row = list([i.row() for i in self.wishlist.selectedItems()])
@@ -308,6 +317,9 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
 
     def del_from_wl(self, id):
         cur = self.con.cursor()
+        for i in range(self.wishlist.rowCount()):
+            if self.wishlist.item(i, 1) == QTableWidgetItem(id):
+                self.wishlist.removeRow(self.wishlist.item(i, 1).row())
         self.con.execute("""DELETE FROM wishlist WHERE id = ?""", [id])
         self.con.commit()
 
@@ -483,7 +495,7 @@ class FromWlToShelf(QMainWindow, Ui_add_form):
         self.cB_genre.addItem(text)
 
     def set_info(self, id,  name):
-        self.id = id
+        self.id = int(id)
         self.name_inp.setText(name)
         self.cB_author.setCurrentText(self.parent().author_for_wl(name))
 
@@ -495,6 +507,18 @@ class FromWlToShelf(QMainWindow, Ui_add_form):
         num_shelf = self.cB_shelf.currentText()
         self.parent().add_item(name, author, year, genre, num_shelf)
         self.parent().del_from_wl(self.id)
+        self.close()
+
+
+class DeleteShelf(QMainWindow, Ui_del_shelf_form):
+    def __init__(self, parent=None):
+        super(DeleteShelf, self).__init__(parent)
+        self.setupUi(self)
+        self.del_btn.clicked.connect(self.del_shelf)
+
+    def del_shelf(self):
+        num = self.lineEdit.text()
+        self.parent().to_another_shelf(num)
         self.close()
 
 
