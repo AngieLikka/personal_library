@@ -145,10 +145,12 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
 
     def add_item(self, name, author, year, genre, num_shelf):  # добавление книг в бд
         cur = self.con.cursor()
-        ind_author = self.con.execute("""SELECT id FROM authors WHERE name = ?""", [author])
-        ind_genre = self.con.execute("""SELECT id FROM genres WHERE title = ?""", [genre])
+        cur.execute("""SELECT id FROM authors WHERE name = ? LIMIT 1""", [author])
+        ind_author = cur.fetchone()
+        cur.execute("""SELECT id FROM genres WHERE title = ? LIMIT 1""", [genre])
+        ind_genre = cur.fetchone()
         req = """INSERT INTO books_inf (name, author, year, genre, shelf) VALUES (?, ?, ?, ?, ?)"""
-        self.con.execute(req, [name, int(*ind_author), int(year), int(*ind_genre), int(*num_shelf)])
+        cur.execute(req, [name, ind_author, year, ind_genre, int(*num_shelf)])
         self.con.commit()
 
     def show_add_form(self):  # показывает форму добавления
@@ -162,12 +164,12 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         self.change_inf.show()
 
     def change_item(self, name, author, year, genre, num_shelf, oldname):  # редактирование элементов
-        ind_author = self.con.execute("""SELECT id FROM authors WHERE name = ?""", [author])
-        ind_genre = self.con.execute("""SELECT id FROM genres WHERE title = ?""", [genre])
-        id = self.con.execute("""SELECT id FROM books_inf WHERE name = ?""", [oldname])
+        ind_author = self.con.execute("""SELECT id FROM authors WHERE name = ? LIMIT 1""", [author]).fetchone()
+        ind_genre = self.con.execute("""SELECT id FROM genres WHERE title = ? LIMIT 1""", [genre]).fetchone()
+        id = self.con.execute("""SELECT id FROM books_inf WHERE name = ?""", [oldname]).fetchone()
         req = """UPDATE books_inf SET name = ?, author = ?,
         year = ?, genre = ?, shelf = ? WHERE id = ?"""
-        self.con.execute(req, [name, int(*ind_author), year, int(*ind_genre), num_shelf, int(*id)])
+        self.con.execute(req, [name, ind_author, year, ind_genre, num_shelf, int(*id)])
         self.con.commit()
         self.find_books()
 
@@ -517,6 +519,7 @@ class FromWlToShelf(QMainWindow, Ui_add_form):  # класс формы пере
         self.parent().del_from_wl(self.id)
         self.name_inp.clear()
         self.year_inp.clear()
+        self.parent().redraw_wl()
         self.close()
 
 
