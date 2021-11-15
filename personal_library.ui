@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>820</width>
-    <height>588</height>
+    <width>849</width>
+    <height>575</height>
    </rect>
   </property>
   <property name="palette">
@@ -110,8 +110,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>1181</width>
-      <height>671</height>
+      <width>1701</width>
+      <height>1021</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -1382,6 +1382,18 @@
          </property>
          <property name="text">
           <string>Поставить на полку</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="del_from_wl">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Удалить книгу из wishlist</string>
          </property>
         </widget>
        </item>
