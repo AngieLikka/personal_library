@@ -307,9 +307,9 @@ class MainWork(Ui_list_shelfes, QMainWindow):  # основной класс
         for i, elem in enumerate(res):
             for j, value in enumerate(elem):
                 self.wishlist.setItem(i, j, QTableWidgetItem(str(value)))
-        req_p = """SELECT price FROM wishlist"""
-        prices = map(int, self.con.execute(req_p).fetchall())
-        self.all_prices.display(str(sum(prices)))  # показывает общую цену всех книг
+        req_p = """SELECT SUM (price) FROM wishlist"""
+        prices = self.con.execute(req_p).fetchone()
+        self.all_prices.display(str(prices))  # показывает общую цену всех книг
 
     def show_add_wl(self):  # показывает форму добавления из wishlist в основную таблицу
         row = list([i.row() for i in self.wishlist.selectedItems()])
